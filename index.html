@@ -105,6 +105,27 @@ input[type="text"]:focus{border-color:var(--p);box-shadow:0 0 0 6px var(--pg), i
 .feedback.ok{background:rgba(62,207,142,0.12);color:var(--ok);border:2.5px solid var(--ok)}
 .feedback.er{background:rgba(255,92,92,0.12);color:var(--er);border:2.5px solid var(--er)}
 
+/* EXPLAIN */
+.explain-wrap{display:flex;justify-content:center;margin-bottom:20px}
+.btn-explain{
+    opacity:0;transform:translateY(6px);pointer-events:none;
+    background:var(--grad);color:#fff;border:none;padding:12px 26px;border-radius:14px;
+    font-weight:800;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:8px;
+    box-shadow:0 6px 18px var(--pg);transition:transform 0.15s ease;
+}
+.btn-explain.show{animation: explainFadeIn 0.5s ease forwards}
+.btn-explain:hover{transform:translateY(-2px)}
+@keyframes explainFadeIn{ to{ opacity:1; transform:translateY(0); pointer-events:auto; } }
+
+.explain-panel{display:none;background:var(--s1);border:2px solid var(--bd);border-left:6px solid var(--p);border-radius:20px;padding:22px 24px;margin-bottom:24px;box-shadow:0 5px 15px rgba(0,0,0,0.04);animation: fadeIn 0.4s ease}
+.explain-panel.show{display:block}
+.explain-head{display:flex;align-items:center;gap:10px;font-weight:900;margin-bottom:10px;color:var(--p);font-size:14px;text-transform:uppercase;letter-spacing:0.03em}
+.explain-body{font-size:15px;line-height:1.7;color:var(--t1);white-space:pre-wrap}
+.explain-body.loading{color:var(--t2);display:flex;align-items:center;gap:10px;font-style:italic}
+.explain-src{margin-top:12px;font-size:12px;color:var(--t3);font-weight:600}
+.spin{width:16px;height:16px;border:2.5px solid var(--bd2);border-top-color:var(--p);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
 /* RESULTS */
 .results-screen{width:100%;max-width:1000px;display:none;animation: fadeIn 0.5s ease}
 .res-card{background:var(--s1);border:1px solid var(--bd);border-radius:36px;padding:50px;box-shadow:0 30px 60px -10px rgba(0,0,0,0.1);margin-bottom:30px;text-align:center;position:relative;overflow:hidden}
@@ -130,12 +151,36 @@ input[type="text"]:focus{border-color:var(--p);box-shadow:0 0 0 6px var(--pg), i
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 
 .hidden{display:none !important}
+
+/* CARMFX HALFTONE LINK */
+.carmfx-link{
+    position:relative;
+    display:inline-block;
+    font-weight:900;
+    text-decoration:none;
+    cursor:pointer;
+    background-image:
+        radial-gradient(circle at 1.6px 1.6px, rgba(255,255,255,0.9) 1px, transparent 1.15px),
+        linear-gradient(135deg, #ffffff 0%, #ffb3b3 45%, #ff4d4d 75%, #ffffff 100%);
+    background-size: 5px 5px, 200% 200%;
+    background-position: 0 0, 0% 50%;
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    -webkit-text-fill-color:transparent;
+    animation: carmfx-shimmer 4s ease-in-out infinite;
+}
+.carmfx-link:hover{filter:brightness(1.15)}
+@keyframes carmfx-shimmer{
+    0%,100%{background-position: 0 0, 0% 50%}
+    50%{background-position: 0 0, 100% 50%}
+}
 </style>
 </head>
 <body data-theme="dark">
 
 <header>
-    <div class="logo" onclick="exitToMain()"><div class="lic">💎</div> Quiz Reviewer PC Pro by @CarmFX on YT</div>
+    <div class="logo" onclick="exitToMain()"><div class="lic">💎</div> Quiz Reviewer PC Pro by <a href="https://www.youtube.com/@CarmFX" target="_blank" rel="noopener noreferrer" class="carmfx-link" onclick="event.stopPropagation()">@CarmFX</a> on YT</div>
     <div class="h-btns">
         <div class="theme-sw btn-s btn" style="padding:10px" onclick="toggleTheme()">🌓</div>
         <button class="btn btn-p" onclick="toggleSettings()">⚙️ Settings</button>
@@ -183,6 +228,15 @@ input[type="text"]:focus{border-color:var(--p);box-shadow:0 0 0 6px var(--pg), i
 
                 <div class="ans-area" id="ansArea"></div>
                 <div class="feedback" id="feedback"></div>
+
+                <div class="explain-wrap">
+                    <button class="btn-explain" id="btnExplain" onclick="explainQuestion()">💡 Explain</button>
+                </div>
+                <div class="explain-panel" id="explainPanel">
+                    <div class="explain-head">💡 Why this is the answer</div>
+                    <div class="explain-body" id="explainBody"></div>
+                    <div class="explain-src hidden" id="explainSrc"></div>
+                </div>
 
                 <div style="display:flex;justify-content:flex-end;gap:15px;margin-top:auto">
                     <button class="btn btn-p" id="btnMain" onclick="handleMainAction()">Check (Enter)</button>
@@ -257,11 +311,20 @@ input[type="text"]:focus{border-color:var(--p);box-shadow:0 0 0 6px var(--pg), i
         <div class="sw-toggle" id="swEnabledOnly" onclick="toggleOpt('enabledOnly')"></div>
     </div>
 
+    <div class="sw-row">
+        <div class="sw-info"><h4>Explain Source</h4><p>How "Explain" answers are generated</p></div>
+        <select id="selExplainMode" onchange="setExplainMode(this.value)" style="padding:8px 12px;border-radius:10px;border:2px solid var(--bd);background:var(--s1);color:var(--t1);font-weight:700;font-size:13px;cursor:pointer">
+            <option value="ai">🤖 AI (free)</option>
+            <option value="google">🔍 Google Search</option>
+        </select>
+    </div>
+
     <hr style="opacity:0.1;margin:10px 0">
     <button class="btn btn-p" onclick="shuffleCurrent()" style="width:100%">🔀 Shuffle & Reset</button>
     <button class="btn btn-s" onclick="restartQuiz()" style="width:100%">🔄 Restart Quiz</button>
 </div>
 
+<script src="https://js.puter.com/v2/"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 <script>
@@ -284,7 +347,8 @@ let collapsedCats = new Set(), isAnswered = false;
 
 let options = {
     reviewMode: false, autoNext: true, boldQ: false, mcOverride: false,
-    resetOnWrong: false, timerEnabled: false, enabledOnly: false, theme: 'dark'
+    resetOnWrong: false, timerEnabled: false, enabledOnly: false, theme: 'dark',
+    explainMode: 'ai'
 };
 
 window.onload = () => {
@@ -427,6 +491,8 @@ function renderQuestion() {
     isAnswered = false;
     document.getElementById('btnMain').textContent = "Check (Enter)";
     document.getElementById('feedback').style.display = 'none';
+    document.getElementById('btnExplain').classList.remove('show');
+    document.getElementById('explainPanel').classList.remove('show');
 
     const cat = cats.find(c => c.id === currentQuiz.categoryId)?.name || 'Misc';
     document.getElementById('qMeta').textContent = `${cat} • ${currentQuiz.name}`;
@@ -447,6 +513,7 @@ function renderQuestion() {
         area.innerHTML = `<div style="padding:24px;background:var(--grad);border-radius:18px;color:white;text-align:center;font-weight:800;font-size:24px">${correct}</div>`;
         isAnswered = true;
         document.getElementById('btnMain').textContent = "Next (Enter)";
+        document.getElementById('btnExplain').classList.add('show');
     } else if(q.answerType === 'multiple_choice' || options.mcOverride) {
         renderMC(q, area);
     } else {
@@ -573,6 +640,9 @@ function handleResult(isCorrect, correctStr) {
     isAnswered = true;
     document.getElementById('btnMain').textContent = "Next (Enter)";
     document.querySelectorAll('#ansArea input').forEach(i => i.disabled = true);
+
+    const eb = document.getElementById('btnExplain');
+    eb.classList.remove('show'); void eb.offsetWidth; eb.classList.add('show');
 }
 
 function goNext() { currentIndex++; renderQuestion(); }
@@ -648,6 +718,99 @@ function applyOptionsUI() {
     for(let k in m) {
         const el = document.getElementById(m[k]);
         if(el) el.classList.toggle('on', options[k]);
+    }
+    const sel = document.getElementById('selExplainMode');
+    if(sel) sel.value = options.explainMode || 'ai';
+}
+
+function setExplainMode(v) {
+    options.explainMode = v;
+    localStorage.setItem('quizOptionsPro_v3_final', JSON.stringify(options));
+}
+
+/* ===== EXPLAIN FEATURE ===== */
+function explainCacheKey(q) {
+    const idPart = q.id || (currentQuiz ? currentQuiz.id : 'na') + '_' + currentIndex;
+    return 'quizExplainCache_' + idPart;
+}
+
+function getCachedExplanation(q) {
+    try {
+        const raw = localStorage.getItem(explainCacheKey(q));
+        return raw ? JSON.parse(raw) : null;
+    } catch(e) { return null; }
+}
+
+function setCachedExplanation(q, data) {
+    try { localStorage.setItem(explainCacheKey(q), JSON.stringify(data)); } catch(e) {}
+}
+
+async function explainQuestion() {
+    const q = currentQuestions[currentIndex];
+    if(!q) return;
+    const panel = document.getElementById('explainPanel');
+    const body = document.getElementById('explainBody');
+    const src = document.getElementById('explainSrc');
+    panel.classList.add('show');
+
+    const cached = getCachedExplanation(q);
+    if(cached) {
+        body.className = 'explain-body';
+        body.textContent = cached.text;
+        src.textContent = cached.mode === 'ai' ? '🤖 AI-generated · cached on this device' : '🔍 Google search · cached on this device';
+        src.classList.remove('hidden');
+        return;
+    }
+
+    const mode = options.explainMode || 'ai';
+    const correctStr = getCorrectAnswerDisplay(q) || q.answer || '';
+    const questionText = (q.question || '[Image-based question]').replace(/＿＿＿＿＿/g, '______');
+
+    if(mode === 'google') {
+        const query = `${questionText} answer explanation`;
+        window.open('https://www.google.com/search?q=' + encodeURIComponent(query), '_blank', 'noopener');
+        body.className = 'explain-body';
+        body.textContent = "Opened Google search in a new tab with this question so you can check the explanation.";
+        src.textContent = '🔍 Google search opened';
+        src.classList.remove('hidden');
+        return;
+    }
+
+    // AI mode via Puter.js (free, no API key)
+    body.className = 'explain-body loading';
+    body.innerHTML = '<div class="spin"></div> Generating explanation...';
+    src.classList.add('hidden');
+
+    if(typeof puter === 'undefined' || !puter.ai || !puter.ai.chat) {
+        body.className = 'explain-body';
+        body.textContent = "AI service couldn't load (network/blocked). Try switching to Google Search mode in Settings.";
+        return;
+    }
+
+    try {
+        const choicesLine = (q.choices && q.choices.length) ? `\nChoices: ${q.choices.join(', ')}` : '';
+        const prompt = `You are a helpful tutor. Briefly explain why the correct answer to this quiz question is right. Be concise (3-5 sentences max), clear, and educational. Do not just restate the answer — explain the reasoning.\n\nQuestion: ${questionText}${choicesLine}\nCorrect answer: ${correctStr}`;
+
+        const response = await puter.ai.chat(prompt);
+        let text = '';
+        if(typeof response === 'string') text = response;
+        else if(response?.message?.content) {
+            text = Array.isArray(response.message.content)
+                ? response.message.content.map(c => c.text || '').join(' ')
+                : response.message.content;
+        } else if(response?.text) text = response.text;
+        else text = JSON.stringify(response);
+
+        text = (text || '').trim() || "No explanation was returned. Try again or switch to Google Search mode.";
+        body.className = 'explain-body';
+        body.textContent = text;
+        src.textContent = '🤖 AI-generated · cached on this device';
+        src.classList.remove('hidden');
+        setCachedExplanation(q, { text, mode: 'ai' });
+    } catch(err) {
+        body.className = 'explain-body';
+        body.textContent = "Couldn't generate an AI explanation right now. Try switching to Google Search mode in Settings.";
+        console.error(err);
     }
 }
 
