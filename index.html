@@ -94,6 +94,22 @@ input[type="text"]:focus{border-color:var(--p);box-shadow:0 0 0 6px var(--pg), i
 .mc-btn.correct{background:var(--grad);border-color:transparent;color:white;box-shadow: 0 8px 25px rgba(62,207,142,0.4);opacity:1 !important}
 .mc-btn.wrong{background:var(--er);border-color:var(--er);color:white;box-shadow: 0 8px 25px rgba(255,92,92,0.4);opacity:1 !important}
 
+/* VENN DIAGRAM */
+.venn-visual{display:flex;justify-content:center;margin-bottom:20px}
+.venn-svg{width:100%;max-width:340px;height:auto}
+.venn-circle{fill-opacity:0.16;stroke-width:2.5}
+.venn-circle-l{fill:var(--p);stroke:var(--p)}
+.venn-circle-r{fill:var(--er);stroke:var(--er)}
+.venn-label{font-family:'Sora',sans-serif;font-size:13px;font-weight:800;fill:var(--t1);text-anchor:middle}
+.venn-cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.venn-col{background:var(--s2);border:2px solid var(--bd);border-radius:16px;padding:14px}
+.venn-col h4{font-size:13px;font-weight:800;margin-bottom:10px;text-align:center;color:var(--t1)}
+.venn-col-l{border-top:4px solid var(--p)}
+.venn-col-m{border-top:4px solid var(--pd);background:var(--pg)}
+.venn-col-r{border-top:4px solid var(--er)}
+.venn-inputs .multi-input{margin-bottom:8px}
+@media (max-width:640px){.venn-cols{grid-template-columns:1fr}}
+
 /* BUTTONS */
 .btn{padding:16px 32px;border-radius:18px;border:none;font-family:inherit;font-weight:800;cursor:pointer;transition:all 0.25s;display:inline-flex;align-items:center;gap:10px;font-size:16px;box-shadow: 0 4px 12 rgba(0,0,0,0.08)}
 .btn-p{background:var(--grad);color:white}.btn-p:hover{transform:translateY(-3px);box-shadow: 0 12px 25px var(--pg)}
@@ -314,8 +330,10 @@ input[type="text"]:focus{border-color:var(--p);box-shadow:0 0 0 6px var(--pg), i
     <div class="sw-row">
         <div class="sw-info"><h4>Explain Source</h4><p>How "Explain" answers are generated</p></div>
         <select id="selExplainMode" onchange="setExplainMode(this.value)" style="padding:8px 12px;border-radius:10px;border:2px solid var(--bd);background:var(--s1);color:var(--t1);font-weight:700;font-size:13px;cursor:pointer">
-            <option value="ai">🤖 AI (free)</option>
-            <option value="google">🔍 Google Search</option>
+            <option value="pollinations">🤖 AI — No Login (free)</option>
+            <option value="google2">🔍🤖 Google 2 — AI + Live Search</option>
+            <option value="puter">✨ AI — Puter (needs account)</option>
+            <option value="google">🔍 Google Search (opens tab)</option>
         </select>
     </div>
 
@@ -348,7 +366,7 @@ let collapsedCats = new Set(), isAnswered = false;
 let options = {
     reviewMode: false, autoNext: true, boldQ: false, mcOverride: false,
     resetOnWrong: false, timerEnabled: false, enabledOnly: false, theme: 'dark',
-    explainMode: 'ai'
+    explainMode: 'pollinations'
 };
 
 window.onload = () => {
@@ -434,6 +452,12 @@ function startQuiz(quizId) {
 }
 
 function getCorrectAnswerDisplay(q) {
+    if (q.answerType === "venn") {
+        const L = `${q.vennLeftLabel || 'Left'}: ${(q.vennLeftAnswers || []).join(', ')}`;
+        const M = `${q.vennMidLabel || 'Middle'}: ${(q.vennMidAnswers || []).join(', ')}`;
+        const R = `${q.vennRightLabel || 'Right'}: ${(q.vennRightAnswers || []).join(', ')}`;
+        return `${L}  |  ${M}  |  ${R}`;
+    }
     if (q.answerType === "multiple_choice") {
         if (q.correctChoiceIndices && q.correctChoiceIndices.length > 0) {
             return q.correctChoiceIndices.map(i => q.choices[i]).join(", ");
@@ -514,6 +538,8 @@ function renderQuestion() {
         isAnswered = true;
         document.getElementById('btnMain').textContent = "Next (Enter)";
         document.getElementById('btnExplain').classList.add('show');
+    } else if(q.answerType === 'venn') {
+        renderVenn(q, area);
     } else if(q.answerType === 'multiple_choice' || options.mcOverride) {
         renderMC(q, area);
     } else {
@@ -540,7 +566,7 @@ function focusInput() {
 function renderMC(q, area) {
     const grid = document.createElement('div'); grid.className = 'mc-grid';
     let choices = q.choices && q.choices.length ? [...q.choices] : [];
-    if(options.mcOverride || !choices.length) {
+    if(!choices.length) {
         const correctAnswer = getCorrectAnswerDisplay(q) || q.answer;
 
         // Fetch choices strictly from other questions in the SAME quiz
@@ -578,6 +604,53 @@ function renderID(q, area) {
     }
 }
 
+function escapeHtml(s) {
+    return (s || '').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function renderVenn(q, area) {
+    const leftLabel = q.vennLeftLabel || 'Left';
+    const midLabel = q.vennMidLabel || 'Middle';
+    const rightLabel = q.vennRightLabel || 'Right';
+    const leftAns = q.vennLeftAnswers || [];
+    const midAns = q.vennMidAnswers || [];
+    const rightAns = q.vennRightAnswers || [];
+    const leftN = Math.max(1, q.vennLeftRequired > 0 ? q.vennLeftRequired : leftAns.length);
+    const midN = Math.max(1, q.vennMidRequired > 0 ? q.vennMidRequired : midAns.length);
+    const rightN = Math.max(1, q.vennRightRequired > 0 ? q.vennRightRequired : rightAns.length);
+
+    const wrap = document.createElement('div');
+    wrap.innerHTML = `
+        <div class="venn-visual">
+            <svg viewBox="0 0 320 180" class="venn-svg">
+                <circle cx="125" cy="90" r="78" class="venn-circle venn-circle-l"/>
+                <circle cx="195" cy="90" r="78" class="venn-circle venn-circle-r"/>
+                <text x="75" y="95" class="venn-label">${escapeHtml(leftLabel)}</text>
+                <text x="160" y="95" class="venn-label">${escapeHtml(midLabel)}</text>
+                <text x="245" y="95" class="venn-label">${escapeHtml(rightLabel)}</text>
+            </svg>
+        </div>
+        <div class="venn-cols">
+            <div class="venn-col venn-col-l"><h4>${escapeHtml(leftLabel)}</h4><div class="venn-inputs" id="vennColLeft"></div></div>
+            <div class="venn-col venn-col-m"><h4>${escapeHtml(midLabel)}</h4><div class="venn-inputs" id="vennColMid"></div></div>
+            <div class="venn-col venn-col-r"><h4>${escapeHtml(rightLabel)}</h4><div class="venn-inputs" id="vennColRight"></div></div>
+        </div>`;
+    area.appendChild(wrap);
+
+    const fillCol = (id, n, cls, label) => {
+        const col = document.getElementById(id);
+        for(let i=0; i<n; i++) {
+            const inp = document.createElement('input');
+            inp.type = 'text'; inp.placeholder = `${label} ${i+1}...`;
+            inp.className = `multi-input ${cls}`;
+            col.appendChild(inp);
+        }
+    };
+    fillCol('vennColLeft', leftN, 'venn-input-left', leftLabel);
+    fillCol('vennColMid', midN, 'venn-input-mid', midLabel);
+    fillCol('vennColRight', rightN, 'venn-input-right', rightLabel);
+}
+
 function handleMainAction() {
     if(isAnswered) goNext();
     else checkAnswer();
@@ -585,6 +658,8 @@ function handleMainAction() {
 
 function checkAnswer() {
     const q = currentQuestions[currentIndex];
+    if(q.answerType === 'venn') return checkVennAnswer(q);
+
     const inputs = [...document.querySelectorAll('#ansArea input')];
     if(!inputs.length) return;
     const vals = inputs.map(i => i.value.trim());
@@ -605,6 +680,26 @@ function checkAnswer() {
         isCorrect = possibleAnswers.some(ans => getSimilarity(vals[0], ans) >= 0.90);
     }
     handleResult(isCorrect, correctDisplay);
+}
+
+function checkVennAnswer(q) {
+    const leftVals = [...document.querySelectorAll('.venn-input-left')].map(i => i.value.trim());
+    const midVals = [...document.querySelectorAll('.venn-input-mid')].map(i => i.value.trim());
+    const rightVals = [...document.querySelectorAll('.venn-input-right')].map(i => i.value.trim());
+    if([...leftVals, ...midVals, ...rightVals].some(v => v === '')) return;
+
+    const zoneOk = (vals, answers, required) => {
+        const need = required > 0 ? required : answers.length;
+        const matched = vals.filter(v => answers.some(a => getSimilarity(v, a) >= 0.90));
+        return matched.length >= need;
+    };
+
+    const isCorrect =
+        zoneOk(leftVals, q.vennLeftAnswers || [], q.vennLeftRequired || 0) &&
+        zoneOk(midVals, q.vennMidAnswers || [], q.vennMidRequired || 0) &&
+        zoneOk(rightVals, q.vennRightAnswers || [], q.vennRightRequired || 0);
+
+    handleResult(isCorrect, getCorrectAnswerDisplay(q));
 }
 
 function checkMC(val, btn) {
@@ -720,7 +815,7 @@ function applyOptionsUI() {
         if(el) el.classList.toggle('on', options[k]);
     }
     const sel = document.getElementById('selExplainMode');
-    if(sel) sel.value = options.explainMode || 'ai';
+    if(sel) sel.value = options.explainMode || 'pollinations';
 }
 
 function setExplainMode(v) {
@@ -757,12 +852,12 @@ async function explainQuestion() {
     if(cached) {
         body.className = 'explain-body';
         body.textContent = cached.text;
-        src.textContent = cached.mode === 'ai' ? '🤖 AI-generated · cached on this device' : '🔍 Google search · cached on this device';
+        src.textContent = explainSrcLabel(cached.mode) + ' · cached on this device';
         src.classList.remove('hidden');
         return;
     }
 
-    const mode = options.explainMode || 'ai';
+    const mode = options.explainMode || 'pollinations';
     const correctStr = getCorrectAnswerDisplay(q) || q.answer || '';
     const questionText = (q.question || '[Image-based question]').replace(/＿＿＿＿＿/g, '______');
 
@@ -776,42 +871,68 @@ async function explainQuestion() {
         return;
     }
 
-    // AI mode via Puter.js (free, no API key)
     body.className = 'explain-body loading';
     body.innerHTML = '<div class="spin"></div> Generating explanation...';
     src.classList.add('hidden');
 
-    if(typeof puter === 'undefined' || !puter.ai || !puter.ai.chat) {
-        body.className = 'explain-body';
-        body.textContent = "AI service couldn't load (network/blocked). Try switching to Google Search mode in Settings.";
-        return;
-    }
+    const choicesLine = (q.choices && q.choices.length) ? `\nChoices: ${q.choices.join(', ')}` : '';
+    const prompt = `You are a helpful tutor. Briefly explain why the correct answer to this quiz question is right. Be concise (3-5 sentences max), clear, and educational. Do not just restate the answer — explain the reasoning.\n\nQuestion: ${questionText}${choicesLine}\nCorrect answer: ${correctStr}`;
 
     try {
-        const choicesLine = (q.choices && q.choices.length) ? `\nChoices: ${q.choices.join(', ')}` : '';
-        const prompt = `You are a helpful tutor. Briefly explain why the correct answer to this quiz question is right. Be concise (3-5 sentences max), clear, and educational. Do not just restate the answer — explain the reasoning.\n\nQuestion: ${questionText}${choicesLine}\nCorrect answer: ${correctStr}`;
-
-        const response = await puter.ai.chat(prompt);
         let text = '';
-        if(typeof response === 'string') text = response;
-        else if(response?.message?.content) {
-            text = Array.isArray(response.message.content)
-                ? response.message.content.map(c => c.text || '').join(' ')
-                : response.message.content;
-        } else if(response?.text) text = response.text;
-        else text = JSON.stringify(response);
+        if(mode === 'pollinations') {
+            text = await askPollinations(prompt);
+        } else if(mode === 'google2') {
+            text = await askPollinations(prompt, 'gemini-search');
+        } else {
+            text = await askPuter(prompt);
+        }
 
-        text = (text || '').trim() || "No explanation was returned. Try again or switch to Google Search mode.";
+        text = (text || '').trim() || "No explanation was returned. Try again or switch modes in Settings.";
         body.className = 'explain-body';
         body.textContent = text;
-        src.textContent = '🤖 AI-generated · cached on this device';
+        src.textContent = explainSrcLabel(mode) + ' · cached on this device';
         src.classList.remove('hidden');
-        setCachedExplanation(q, { text, mode: 'ai' });
+        setCachedExplanation(q, { text, mode });
     } catch(err) {
         body.className = 'explain-body';
-        body.textContent = "Couldn't generate an AI explanation right now. Try switching to Google Search mode in Settings.";
+        body.textContent = "Couldn't generate an AI explanation right now. Try switching modes in Settings (e.g. Google Search).";
         console.error(err);
     }
+}
+
+function explainSrcLabel(mode) {
+    if(mode === 'pollinations') return '🤖 AI (no-login) generated';
+    if(mode === 'google2') return '🔍🤖 Google 2 (live search + AI) generated';
+    if(mode === 'puter') return '✨ AI (Puter) generated';
+    return '🔍 Google search';
+}
+
+// Pollinations.ai — free, no signup, no API key.
+// Pass model='gemini-search' to have it run a live Google Search behind the
+// scenes and write the explanation grounded in those results ("Google 2" mode).
+async function askPollinations(prompt, model) {
+    let url = 'https://text.pollinations.ai/' + encodeURIComponent(prompt);
+    if(model) url += '?model=' + encodeURIComponent(model);
+    const res = await fetch(url);
+    if(!res.ok) throw new Error('Pollinations request failed: ' + res.status);
+    return (await res.text()).trim();
+}
+
+// Puter.js — free but prompts for an account on first AI call
+async function askPuter(prompt) {
+    if(typeof puter === 'undefined' || !puter.ai || !puter.ai.chat) {
+        throw new Error('Puter.js not available');
+    }
+    const response = await puter.ai.chat(prompt);
+    if(typeof response === 'string') return response;
+    if(response?.message?.content) {
+        return Array.isArray(response.message.content)
+            ? response.message.content.map(c => c.text || '').join(' ')
+            : response.message.content;
+    }
+    if(response?.text) return response.text;
+    return JSON.stringify(response);
 }
 
 function toggleTheme() {
