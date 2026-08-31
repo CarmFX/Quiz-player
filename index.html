@@ -526,9 +526,9 @@ function renderQuestion() {
     if(q.imageUrl) { img.src = q.imageUrl; img.style.display = 'block'; } else img.style.display = 'none';
 
     const qTxt = document.getElementById('qTxt');
-    qTxt.textContent = q.question.replace(/＿＿＿＿＿/g, '______');
+    qTxt.textContent = (q.question || '').replace(/＿＿＿＿＿/g, '______');
     qTxt.className = options.boldQ ? 'q-txt bold' : 'q-txt';
-    qTxt.classList.toggle('hidden', !q.question && q.imageUrl);
+    qTxt.classList.toggle('hidden', !q.question);
 
     const area = document.getElementById('ansArea'); area.innerHTML = '';
 
