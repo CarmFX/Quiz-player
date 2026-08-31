@@ -65,6 +65,27 @@ header{background:var(--s1);border-bottom:1px solid var(--bd);padding:0 24px;hei
 .qz-item.disabled{color:var(--t3);font-style:italic;font-weight:500;opacity:0.7}
 .qz-item.disabled span:last-child { font-weight: 500; }
 
+/* EXAMINATION HIGHLIGHT */
+.exam-text{
+    display:inline-block;
+    font-weight:900;
+    background-image:
+        radial-gradient(circle at 1.6px 1.6px, rgba(255,255,255,0.9) 1px, transparent 1.15px),
+        linear-gradient(135deg, #fff7cc 0%, #ffe066 40%, #f5c400 75%, #fff7cc 100%);
+    background-size: 5px 5px, 200% 200%;
+    background-position: 0 0, 0% 50%;
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    -webkit-text-fill-color:transparent;
+    animation: exam-shimmer 4s ease-in-out infinite;
+}
+@keyframes exam-shimmer{
+    0%,100%{background-position: 0 0, 0% 50%}
+    50%{background-position: 0 0, 100% 50%}
+}
+.qz-item.active .exam-text{ -webkit-text-fill-color: white; background:none; color:white }
+
 /* QUIZ CONTAINER */
 .quiz-container{width:100%;max-width:1000px;display:none;animation: fadeIn 0.5s ease;flex:1;flex-direction:column}
 .q-card{background:var(--s1);border:1px solid var(--bd);border-radius:36px;padding:44px;margin-bottom:24px;box-shadow:0 35px 70px -15px rgba(0,0,0,0.12);position:relative;overflow:hidden;min-height:550px;display:flex;flex-direction:column}
@@ -412,7 +433,7 @@ function renderTree() {
                     ${myQuizzes.map(q => {
                         const count = qs.filter(que => que.quizId === q.id).length;
                         return `<div class="qz-item ${currentQuiz?.id === q.id ? 'active' : ''} ${q.disabled?'disabled':''}" onclick="startQuiz('${q.id}')">
-                            <span>📋 ${q.name}</span> <span style="opacity:0.5">${count}</span>
+                            <span>${q.isExam?'📝':'📋'} <span class="${q.isExam?'exam-text':''}">${q.name}</span></span> <span style="opacity:0.5">${count}</span>
                         </div>`;
                     }).join('')}
                 </div>
@@ -519,7 +540,8 @@ function renderQuestion() {
     document.getElementById('explainPanel').classList.remove('show');
 
     const cat = cats.find(c => c.id === currentQuiz.categoryId)?.name || 'Misc';
-    document.getElementById('qMeta').textContent = `${cat} • ${currentQuiz.name}`;
+    const qzNameHtml = currentQuiz.isExam ? `<span class="exam-text">📝 ${currentQuiz.name}</span>` : currentQuiz.name;
+    document.getElementById('qMeta').innerHTML = `${cat} • ${qzNameHtml}`;
     document.getElementById('qScoreText').textContent = `Question ${currentIndex+1} of ${currentQuestions.length}`;
 
     const img = document.getElementById('qImg');
