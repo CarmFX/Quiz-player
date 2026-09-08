@@ -174,9 +174,9 @@ input[type="text"]:focus{border-color:var(--p);box-shadow:0 0 0 6px var(--pg), i
 .wrong-a{color:var(--er);font-weight:800;font-size:15px;padding:10px 16px;background:rgba(255,92,92,0.08);border-radius:12px;display:inline-block}
 
 /* SETTINGS PANEL */
-.settings-mo{position:fixed;right:0;top:64px;bottom:0;width:360px;background:var(--s1);border-left:1px solid var(--bd);transform:translateX(100%);transition:transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);padding:32px;z-index:200;display:flex;flex-direction:column;gap:20px;box-shadow: -15px 0 40px rgba(0,0,0,0.08)}
+.settings-mo{position:fixed;right:0;top:64px;bottom:0;width:min(360px, 92vw);max-height:calc(100vh - 64px);background:var(--s1);border-left:1px solid var(--bd);transform:translateX(100%);transition:transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);padding:28px;z-index:200;display:flex;flex-direction:column;gap:16px;box-shadow: -15px 0 40px rgba(0,0,0,0.08);overflow-y:auto;-webkit-overflow-scrolling:touch}
 .settings-mo.open{transform:translateX(0)}
-.sw-row{display:flex;justify-content:space-between;align-items:center;padding:15px;background:var(--s2);border-radius:18px;border:1.5px solid var(--bd)}
+.sw-row{display:flex;justify-content:space-between;align-items:center;padding:15px;background:var(--s2);border-radius:18px;border:1.5px solid var(--bd);gap:12px;flex-wrap:wrap}
 .sw-info h4{font-size:14px;font-weight:800}.sw-info p{font-size:11px;color:var(--t2);margin-top:4px}
 .sw-toggle{position:relative;width:48px;height:26px;background:var(--bd2);border-radius:99px;cursor:pointer;transition:0.3s}
 .sw-toggle::after{content:"";position:absolute;left:5px;top:5px;width:16px;height:16px;background:white;border-radius:50%;transition:0.3s}
@@ -211,6 +211,72 @@ input[type="text"]:focus{border-color:var(--p);box-shadow:0 0 0 6px var(--pg), i
 @keyframes carmfx-shimmer{
     0%,100%{background-position: 0 0, 0% 50%}
     50%{background-position: 0 0, 100% 50%}
+}
+
+/* ===== RESPONSIVE / MOBILE ===== */
+@media (max-width:768px){
+    header{padding:0 14px;height:56px}
+    .logo{font-size:13px;gap:8px;line-height:1.3;flex-wrap:wrap}
+    .lic{width:32px;height:32px;font-size:16px;border-radius:10px}
+    .h-btns{gap:8px}
+    .btn{padding:10px 16px;font-size:13px;gap:6px;border-radius:14px}
+    .btn-sm{padding:8px 14px;font-size:12px;border-radius:10px}
+    .layout{padding-top:56px}
+    .main{padding:12px}
+    .settings-mo{top:56px;max-height:calc(100vh - 56px)}
+
+    .welcome-screen h1{font-size:30px}
+    .welcome-screen p{font-size:14px;padding:0 6px}
+    .library-section{margin-top:24px}
+    .lib-header{flex-direction:column;align-items:flex-start;gap:12px;margin-bottom:20px}
+    .sb-srch{width:100%}
+    .tree-grid{grid-template-columns:1fr;gap:14px;padding-bottom:60px}
+
+    .q-card{padding:20px;border-radius:24px;min-height:auto}
+    .q-top-row{flex-direction:column;align-items:flex-start;gap:10px;margin-bottom:18px}
+    .q-actions{width:100%}
+    .q-img{max-height:220px;margin-bottom:18px}
+    .q-txt{font-size:19px;margin-bottom:22px}
+    .q-txt.bold{font-size:21px}
+    .ans-area{margin-bottom:24px}
+    input[type="text"],textarea{font-size:16px;padding:10px 16px}
+    .mc-grid{grid-template-columns:1fr;gap:10px}
+    .mc-btn{padding:14px;font-size:14px}
+    .venn-cols{grid-template-columns:1fr}
+
+    .q-nav{flex-direction:column;gap:10px !important}
+    .q-nav > div{width:100%;flex-wrap:wrap;justify-content:center;gap:8px !important}
+    .q-nav .btn{flex:1 1 auto;justify-content:center}
+
+    .res-card{padding:26px}
+    .res-grade{font-size:64px}
+    #resScore{font-size:30px !important}
+
+    .settings-mo{width:100%;max-width:100%;padding:20px}
+}
+
+@media (max-height:520px) and (orientation:landscape){
+    header{height:44px;padding:0 12px}
+    .logo{font-size:12px}
+    .lic{width:26px;height:26px;font-size:14px}
+    .layout{padding-top:44px}
+    .main{padding:8px}
+    .settings-mo{top:44px;max-height:calc(100vh - 44px);padding:16px;gap:10px}
+
+    .q-card{padding:14px 16px;min-height:auto;border-radius:18px}
+    .q-top-row{margin-bottom:10px;flex-direction:row;align-items:center}
+    .q-img{max-height:110px;margin-bottom:10px}
+    .q-txt{font-size:16px;margin-bottom:12px;line-height:1.35}
+    .q-txt.bold{font-size:17px}
+    .ans-area{margin-bottom:14px}
+    input[type="text"],textarea{padding:8px 14px;font-size:15px}
+    .mc-grid{gap:8px}
+    .mc-btn{padding:9px 12px;font-size:13px}
+    .feedback{padding:10px;margin-bottom:12px;font-size:14px}
+    .explain-wrap{margin-bottom:10px}
+    .btn-explain{padding:8px 18px;font-size:12px}
+    .q-nav{margin-top:8px;gap:8px !important}
+    .sw-row{padding:10px}
 }
 </style>
 </head>
@@ -328,6 +394,10 @@ input[type="text"]:focus{border-color:var(--p);box-shadow:0 0 0 6px var(--pg), i
         <div class="sw-toggle" id="swAuto" onclick="toggleOpt('autoNext')"></div>
     </div>
     <div class="sw-row">
+        <div class="sw-info"><h4>Fast Skip</h4><p>Skip instantly on correct, no delay</p></div>
+        <div class="sw-toggle" id="swFastSkip" onclick="toggleOpt('fastSkip')"></div>
+    </div>
+    <div class="sw-row">
         <div class="sw-info"><h4>Bold Layout</h4><p>Enhanced readability</p></div>
         <div class="sw-toggle" id="swBold" onclick="toggleOpt('boldQ')"></div>
     </div>
@@ -385,7 +455,7 @@ let answeredIndices = new Set(), wrongLog = [], startTime = 0, elapsedTimer = nu
 let collapsedCats = new Set(), isAnswered = false;
 
 let options = {
-    reviewMode: false, autoNext: true, boldQ: false, mcOverride: false,
+    reviewMode: false, autoNext: true, fastSkip: false, boldQ: false, mcOverride: false,
     resetOnWrong: false, timerEnabled: false, enabledOnly: false, theme: 'dark',
     explainMode: 'pollinations'
 };
@@ -747,7 +817,7 @@ function handleResult(isCorrect, correctStr) {
     if(isCorrect) {
         f.className = 'feedback ok'; f.textContent = `✨ Correct! ${correctStr}`;
         if(!answeredIndices.has(currentIndex)) { score++; answeredIndices.add(currentIndex); }
-        if(options.autoNext) { setTimeout(goNext, 800); return; }
+        if(options.autoNext || options.fastSkip) { setTimeout(goNext, options.fastSkip ? 0 : 800); return; }
     } else {
         f.className = 'feedback er'; f.textContent = `❌ Wrong. Answer: ${correctStr}`;
         wrongLog.push({ q: currentQuestions[currentIndex].question || "[Image Question]", a: correctStr });
@@ -831,7 +901,7 @@ function toggleOpt(k) {
 }
 
 function applyOptionsUI() {
-    const m = { reviewMode:'swReview', autoNext:'swAuto', boldQ:'swBold', mcOverride:'swMcForce', resetOnWrong:'swReset', timerEnabled:'swTimer', enabledOnly:'swEnabledOnly' };
+    const m = { reviewMode:'swReview', autoNext:'swAuto', fastSkip:'swFastSkip', boldQ:'swBold', mcOverride:'swMcForce', resetOnWrong:'swReset', timerEnabled:'swTimer', enabledOnly:'swEnabledOnly' };
     for(let k in m) {
         const el = document.getElementById(m[k]);
         if(el) el.classList.toggle('on', options[k]);
