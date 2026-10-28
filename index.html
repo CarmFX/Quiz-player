@@ -26,10 +26,44 @@ body{
 }
 
 /* HEADER */
-header{background:var(--s1);border-bottom:1px solid var(--bd);padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;position:fixed;top:0;left:0;right:0;z-index:300;box-shadow: 0 4px 12px rgba(0,0,0,0.05)}
+header{background:var(--s1);border-bottom:1px solid var(--bd);padding:0 24px;height:64px;display:flex;align-items:center;justify-space-between;position:fixed;top:0;left:0;right:0;z-index:300;box-shadow: 0 4px 12px rgba(0,0,0,0.05)}
 .logo{display:flex;align-items:center;gap:12px;font-weight:800;font-size:17px;cursor:pointer;letter-spacing:-0.02em}
 .lic{width:38px;height:38px;background:var(--grad);border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;font-size:20px;box-shadow: 0 4px 15px var(--pg)}
 .h-btns{display:flex;gap:12px;align-items:center}
+
+/* ONLINE ACTIVE USERS BADGE */
+.online-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--s2);
+    border: 1.5px solid var(--bd);
+    padding: 8px 14px;
+    border-radius: 99px;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--t1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+.glow-dot {
+    width: 10px;
+    height: 10px;
+    background-color: var(--ok);
+    border-radius: 50%;
+    position: relative;
+    box-shadow: 0 0 10px var(--ok);
+    animation: pulse-glow 2s infinite ease-in-out;
+}
+@keyframes pulse-glow {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 6px var(--ok), 0 0 12px var(--ok);
+    }
+    50% {
+        transform: scale(1.25);
+        box-shadow: 0 0 12px var(--ok), 0 0 20px var(--ok);
+    }
+}
 
 /* LAYOUT */
 .layout{padding-top:64px;width:100%}
@@ -278,13 +312,91 @@ input[type="text"]:focus{border-color:var(--p);box-shadow:0 0 0 6px var(--pg), i
     .q-nav{margin-top:8px;gap:8px !important}
     .sw-row{padding:10px}
 }
+
+/* Account access and live study room */
+[hidden]{display:none!important}
+body.auth-locked>header,body.auth-locked>.layout,body.auth-locked>#settings{display:none!important}
+.auth-shell{min-height:100dvh;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at top,var(--pg),transparent 70%)}
+.auth-card{width:100%;max-width:440px;background:var(--s1);border:1px solid var(--bd);border-radius:28px;padding:34px;box-shadow:0 30px 80px #0003}
+.auth-mark{width:54px;height:54px;border-radius:16px;background:var(--grad);display:grid;place-items:center;font-size:26px;margin-bottom:24px}
+.auth-eyebrow{color:var(--p);font-size:11px;letter-spacing:.15em;font-weight:800;margin-bottom:10px}
+.auth-card h1{font-size:28px;letter-spacing:-.04em;margin-bottom:10px}
+.auth-copy{color:var(--t2);font-size:13px;line-height:1.8;margin-bottom:24px}
+.auth-tabs{display:flex;gap:6px;padding:5px;background:var(--s2);border-radius:12px;margin-bottom:24px}
+.auth-tabs button{flex:1;border:0;border-radius:9px;background:transparent;color:var(--t2);padding:11px;font:700 12px Sora,sans-serif;cursor:pointer}
+.auth-tabs button[aria-pressed=true]{background:var(--s3);color:var(--t1)}
+.auth-card label{display:block;font-size:12px;font-weight:700;margin:18px 0 8px}
+.auth-card input[type=text],.auth-card input[type=password]{width:100%;background:var(--s2);border:1.5px solid var(--bd);border-radius:12px;padding:13px 14px;font:14px Sora,sans-serif;color:var(--t1);outline:none}
+.auth-card input:focus{border-color:var(--p);box-shadow:0 0 0 3px var(--pg)}
+.auth-hint{font-size:11px;color:var(--t2);line-height:1.6;margin-top:7px}
+.auth-submit,.google-signin{width:100%;justify-content:center;margin-top:22px;border-radius:12px;font-size:13px;padding:14px}
+.auth-divider{display:flex;align-items:center;gap:12px;font-size:11px;color:var(--t3);margin:22px 0 0}
+.auth-divider:before,.auth-divider:after{content:'';height:1px;background:var(--bd);flex:1}
+.google-signin{margin-top:16px}
+.auth-message{font-size:12px;line-height:1.7;padding:12px;border-radius:10px;background:var(--pg);margin-top:16px;color:var(--t1)}
+button:disabled{opacity:.6;cursor:wait}
+.presence-wrap{position:relative}
+button.online-badge{font-family:inherit;cursor:pointer;white-space:nowrap}
+.active-panel{position:absolute;top:calc(100% + 12px);right:0;width:min(290px,calc(100vw - 30px));background:var(--s1);border:1px solid var(--bd);border-radius:18px;padding:18px;box-shadow:0 20px 50px #0004;z-index:400}
+.active-panel h2{font-size:14px;margin-bottom:7px}
+.presence-status{color:var(--t2);font-size:11px;line-height:1.7;margin-bottom:12px}
+.active-users{list-style:none;max-height:270px;overflow-y:auto}
+.active-user{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--bd);font-size:12px}
+.user-avatar{width:32px;height:32px;border-radius:10px;background:var(--pg);color:var(--p);display:grid;place-items:center;font-weight:800;flex-shrink:0}
+.active-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.active-user small{color:var(--ok);font-size:10px}
+.account-name{max-width:115px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--t2);font-size:12px}
+.account-exit{padding:9px 12px!important;font-size:11px!important;border-radius:10px!important;white-space:nowrap}
+header{justify-content:space-between;gap:14px}
+@media(max-width:900px){header .logo{font-size:11px;gap:6px}header .h-btns{gap:6px}header .h-btns>.btn{font-size:11px;padding:9px}.account-name{display:none}button.online-badge{padding:8px 10px;font-size:11px}}
+@media(max-width:600px){header{height:auto;min-height:104px;flex-wrap:wrap;padding:12px;gap:10px}header .logo{width:100%;justify-content:center}header .h-btns{width:100%;justify-content:center}.layout{padding-top:116px}.settings-mo{top:116px;max-height:calc(100dvh - 116px)}.auth-card{padding:26px}.auth-card h1{font-size:25px}.active-panel{position:fixed;top:108px;right:12px}}
+
 </style>
 </head>
-<body data-theme="dark">
+<body data-theme="dark" class="auth-locked">
+<section id="authGate" class="auth-shell" aria-labelledby="authTitle">
+ <div class="auth-card">
+  <div class="auth-mark" aria-hidden="true">💎</div>
+  <p class="auth-eyebrow">CARMFX STUDY LAB</p>
+  <h1 id="authTitle">Welcome back.</h1>
+  <p class="auth-copy" id="authCopy">Sign in to open your quiz library and study together.</p>
+  <div class="auth-tabs" aria-label="Account options">
+   <button type="button" id="loginTab" aria-pressed="true">Sign in</button>
+   <button type="button" id="registerTab" aria-pressed="false">Create account</button>
+  </div>
+  <form id="authForm">
+   <label for="accountName">Name</label>
+   <input id="accountName" name="username" type="text" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_]{3,24}" autocomplete="username" autocapitalize="none" spellcheck="false" aria-describedby="nameHint">
+   <p class="auth-hint" id="nameHint">Your unique name: 3–24 letters, numbers, or underscores.</p>
+   <label for="accountPassword">Password</label>
+   <input id="accountPassword" name="password" type="password" required maxlength="128" autocomplete="current-password">
+   <p class="auth-hint" id="passwordHint" hidden>Use at least 8 characters. Keep your password somewhere safe.</p>
+   <button id="authSubmit" class="btn btn-p auth-submit" type="submit">Sign in →</button>
+  </form>
+  <div class="auth-divider">or continue with</div>
+  <button id="googleSignin" type="button" class="btn btn-s google-signin"><span aria-hidden="true" style="color:#4285f4;font-size:18px">G</span> Continue with Google</button>
+  <p id="authMessage" class="auth-message" role="status" aria-live="polite" hidden></p>
+  <p class="auth-hint" style="text-align:center;margin-top:22px">Your name appears in the active list while this tab is open.</p>
+ </div>
+</section>
+
 
 <header>
     <div class="logo" onclick="exitToMain()"><div class="lic">💎</div> Quiz Reviewer PC Pro by <a href="https://www.youtube.com/@CarmFX" target="_blank" rel="noopener noreferrer" class="carmfx-link" onclick="event.stopPropagation()">@CarmFX</a> on YT</div>
     <div class="h-btns">
+
+        <div class="presence-wrap" id="presenceWrap">
+         <button type="button" class="online-badge" id="presenceToggle" aria-expanded="false" aria-controls="activePanel">
+          <span class="glow-dot" aria-hidden="true"></span><span id="onlineCount">—</span> online <span aria-hidden="true">▾</span>
+         </button>
+         <section class="active-panel" id="activePanel" aria-labelledby="activeHeading" hidden>
+          <h2 id="activeHeading">In the study lab</h2>
+          <p class="presence-status" id="presenceStatus" role="status">Connecting…</p>
+          <ul class="active-users" id="activeUsers" aria-label="Active members"></ul>
+         </section>
+        </div>
+        <span class="account-name" id="signedInName"></span>
+        <button class="btn btn-s account-exit" type="button" id="signOutButton">Sign out</button>
         <div class="theme-sw btn-s btn" style="padding:10px" onclick="toggleTheme()">🌓</div>
         <button class="btn btn-p" onclick="toggleSettings()">⚙️ Settings</button>
     </div>
@@ -296,7 +408,7 @@ input[type="text"]:focus{border-color:var(--p);box-shadow:0 0 0 6px var(--pg), i
         <div class="welcome-screen" id="welcome">
             <div style="font-size:70px;margin-bottom:25px">📚</div>
             <h1>CarmFX Study Lab</h1>
-            <p>Ready to level up? Pick a quiz below and start your pro session. Your progress is synced across your collection.</p>
+            <p>Ready to level up? Pick a quiz below and start your pro session. Sign in, pick a topic, and study at your own pace.</p>
             <div style="display:flex;gap:15px;justify-content:center;margin-top:30px;flex-wrap:wrap">
                 <button class="btn btn-p" onclick="scrollToLibrary()">📖 Open Available Quizzes</button>
                 <button class="btn btn-s" onclick="location.reload()">🔄 Refresh Database</button>
@@ -436,6 +548,7 @@ input[type="text"]:focus{border-color:var(--p);box-shadow:0 0 0 6px var(--pg), i
 <script src="https://js.puter.com/v2/"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script>
 // INITIALIZE FIREBASE
 firebase.initializeApp({
@@ -447,6 +560,243 @@ firebase.initializeApp({
   appId:"1:103422048095:web:a8aacde57e4ca538a128ea"
 });
 const db = firebase.firestore();
+
+// Firebase Authentication protects Firestore reads through firestore.rules.
+// GitHub Pages serves the HTML publicly; no passwords are kept in this file.
+const auth = firebase.auth();
+let accountMode = 'login', accountBusy = false;
+let libraryStops = [], presenceStop = null, presenceTimers = [];
+let presenceRows = [], presenceDoc = null, presenceReady = false;
+let presenceWriteFailed = false, presenceReadFailed = false, presenceEpoch = 0;
+const tabKey = crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2);
+const ACTIVE_WINDOW = 65000;
+
+function showAuthMessage(message) {
+    const el = document.getElementById('authMessage');
+    el.textContent = message; el.hidden = !message;
+}
+
+function accountError(error) {
+    const messages = {
+        'auth/operation-not-allowed': 'Sign-in is not enabled yet. The site owner needs to enable Email/Password and Google in Firebase Authentication.',
+        'auth/unauthorized-domain': 'This site domain needs to be added to Firebase Authentication → Settings → Authorized domains.',
+        'auth/invalid-login-credentials': 'That name and password do not match. Check them or create an account.',
+        'auth/invalid-credential': 'That name and password do not match. Check them or create an account.',
+        'auth/user-not-found': 'That name and password do not match. Check them or create an account.',
+        'auth/wrong-password': 'That name and password do not match. Check them or create an account.',
+        'auth/email-already-in-use': 'That name is already taken. Sign in or choose another name.',
+        'auth/weak-password': 'Choose a stronger password that meets this site’s password policy.',
+        'auth/password-does-not-meet-requirements': 'Choose a stronger password that meets this site’s password policy.',
+        'auth/popup-blocked': 'Your browser blocked the Google window. Allow pop-ups for this site and try again.',
+        'auth/popup-closed-by-user': 'Google sign-in was closed. You can try again.',
+        'auth/cancelled-popup-request': 'Another sign-in window was opened. Finish that window or try again.',
+        'auth/network-request-failed': 'Could not connect. Check your internet connection and try again.',
+        'auth/too-many-requests': 'Too many attempts. Please wait a little before trying again.',
+        'auth/user-disabled': 'This account has been disabled. Contact the site owner.'
+    };
+    return messages[error.code] || 'Sign-in could not finish. Please try again or contact the site owner.';
+}
+
+function setAccountBusy(busy) {
+    accountBusy = busy;
+    ['authSubmit','googleSignin','loginTab','registerTab'].forEach(id => document.getElementById(id).disabled = busy);
+}
+
+function setAccountMode(mode) {
+    accountMode = mode;
+    const registering = mode === 'register';
+    document.getElementById('loginTab').setAttribute('aria-pressed', String(!registering));
+    document.getElementById('registerTab').setAttribute('aria-pressed', String(registering));
+    document.getElementById('authTitle').textContent = registering ? 'Join the study lab.' : 'Welcome back.';
+    document.getElementById('authCopy').textContent = registering ? 'Choose a unique name and password to start studying.' : 'Sign in to open your quiz library and study together.';
+    document.getElementById('authSubmit').textContent = registering ? 'Create account →' : 'Sign in →';
+    const password = document.getElementById('accountPassword');
+    password.autocomplete = registering ? 'new-password' : 'current-password';
+    password.minLength = registering ? 8 : 1;
+    document.getElementById('passwordHint').hidden = !registering;
+    showAuthMessage('');
+}
+
+function memberName(user) {
+    return (user.displayName || user.email?.split('@')[0] || 'Member').slice(0, 50);
+}
+
+function stopLibrary() {
+    libraryStops.forEach(stop => stop()); libraryStops = [];
+    cats = []; qzs = []; qs = []; allAnsPool = [];
+    exitToMain();
+    currentQuestions = []; answeredIndices.clear(); wrongLog = []; score = 0;
+    document.getElementById('ansArea').replaceChildren();
+    document.getElementById('qTxt').textContent = '';
+    document.getElementById('wrongList').replaceChildren();
+    document.getElementById('explainBody').textContent = '';
+    document.getElementById('explainSrc').textContent = '';
+    document.getElementById('feedback').textContent = '';
+    document.getElementById('qImg').removeAttribute('src');
+    document.getElementById('settings').classList.remove('open');
+}
+
+function startLibrary(user) {
+    document.getElementById('tree').textContent = 'Loading your library…';
+    const failed = () => {
+        if(auth.currentUser?.uid === user.uid) document.getElementById('tree').textContent = 'Cannot load quizzes. Check your connection or ask the owner to check Firestore rules.';
+    };
+    ['categories','quizzes','questions'].forEach(collection => {
+        libraryStops.push(db.collection(collection).orderBy('createdAt').onSnapshot(snapshot => {
+            if(auth.currentUser?.uid !== user.uid) return;
+            const rows = snapshot.docs.map(d => ({id:d.id, ...d.data()}));
+            if(collection === 'categories') cats = rows;
+            if(collection === 'quizzes') qzs = rows;
+            if(collection === 'questions') {
+                qs = rows; allAnsPool = qs.map(q => q.answer).filter(a => a && a.length < 50);
+            }
+            renderTree();
+        }, failed));
+    });
+}
+
+function renderActiveMembers() {
+    const unique = new Map();
+    if(presenceReady && navigator.onLine && !presenceWriteFailed && !presenceReadFailed) {
+        presenceRows.forEach(row => {
+            const seen = row.lastSeen?.toMillis?.() || 0;
+            if(typeof row.uid === 'string' && typeof row.name === 'string' && seen > Date.now() - ACTIVE_WINDOW) {
+                const prior = unique.get(row.uid);
+                if(!prior || seen > prior.seen) unique.set(row.uid, {name:row.name, seen});
+            }
+        });
+    }
+    const list = document.getElementById('activeUsers'); list.replaceChildren();
+    const available = presenceReady && navigator.onLine && !presenceWriteFailed && !presenceReadFailed;
+    document.getElementById('onlineCount').textContent = available ? String(unique.size) : '—';
+    document.getElementById('presenceStatus').textContent = !navigator.onLine ? 'Offline — reconnect to see active members.' :
+        presenceWriteFailed || presenceReadFailed ? 'Live status unavailable. Check your connection or Firebase rules.' :
+        !presenceReady ? 'Connecting…' : `${unique.size} ${unique.size === 1 ? 'person' : 'people'} online · updates live`;
+    [...unique.entries()].sort((a,b) => a[1].name.localeCompare(b[1].name)).forEach(([uid, row]) => {
+        const li = document.createElement('li'); li.className = 'active-user';
+        const avatar = document.createElement('span'); avatar.className = 'user-avatar'; avatar.textContent = row.name.charAt(0).toUpperCase();
+        const name = document.createElement('span'); name.className = 'active-name'; name.textContent = row.name; name.title = row.name;
+        const status = document.createElement('small'); status.textContent = uid === auth.currentUser?.uid ? 'You' : 'Online';
+        li.append(avatar, name, status); list.append(li);
+    });
+}
+
+function stopPresence() {
+    presenceEpoch++;
+    if(presenceStop) presenceStop(); presenceStop = null;
+    presenceTimers.forEach(clearInterval); presenceTimers = [];
+    const oldDoc = presenceDoc; presenceDoc = null;
+    presenceRows = []; presenceReady = false;
+    presenceWriteFailed = false; presenceReadFailed = false;
+    renderActiveMembers();
+    // Expiration handles abrupt closes and lost network connections.
+    return oldDoc ? oldDoc.delete().catch(() => {}) : Promise.resolve();
+}
+
+async function writePresence() {
+    if(!presenceDoc || !auth.currentUser || document.visibilityState === 'hidden' || !navigator.onLine) return;
+    const epoch = presenceEpoch;
+    try {
+        await presenceDoc.set({uid:auth.currentUser.uid, name:memberName(auth.currentUser), lastSeen:firebase.firestore.FieldValue.serverTimestamp()});
+        if(epoch === presenceEpoch) presenceWriteFailed = false;
+    } catch(error) {
+        if(epoch === presenceEpoch) presenceWriteFailed = true;
+    }
+    if(epoch === presenceEpoch) renderActiveMembers();
+}
+
+function subscribePresence() {
+    if(!auth.currentUser || !presenceDoc) return;
+    if(presenceStop) presenceStop();
+    const epoch = presenceEpoch;
+    // Refresh this query so old closed sessions do not accumulate in the feed.
+    presenceStop = db.collection('memberPresence').where('lastSeen', '>', new Date(Date.now() - 90000)).onSnapshot(snapshot => {
+        if(epoch !== presenceEpoch) return;
+        presenceRows = snapshot.docs.map(doc => doc.data());
+        presenceReady = !snapshot.metadata.fromCache;
+        presenceReadFailed = false; renderActiveMembers();
+    }, () => {
+        if(epoch !== presenceEpoch) return;
+        presenceReadFailed = true; presenceReady = false; renderActiveMembers();
+    });
+}
+
+function startPresence(user) {
+    presenceDoc = db.collection('memberPresence').doc(`${user.uid}_${tabKey}`);
+    subscribePresence(); writePresence();
+    presenceTimers = [setInterval(writePresence,20000),setInterval(renderActiveMembers,5000),setInterval(subscribePresence,60000)];
+}
+
+function initializeAccounts() {
+    document.getElementById('loginTab').onclick = () => setAccountMode('login');
+    document.getElementById('registerTab').onclick = () => setAccountMode('register');
+    document.getElementById('authForm').onsubmit = async event => {
+        event.preventDefault(); if(accountBusy) return;
+        if(!event.target.reportValidity()) return;
+        const name = document.getElementById('accountName').value.trim().toLowerCase();
+        const password = document.getElementById('accountPassword').value;
+        if(!/^[a-z0-9_]{3,24}$/.test(name)) { showAuthMessage('Use 3–24 letters, numbers, or underscores for your name.'); return; }
+        // Deterministic aliases let Firebase's managed password authentication support names.
+        const alias = `${name}@members.quizlet-reviewer.invalid`;
+        setAccountBusy(true); showAuthMessage('');
+        try {
+            if(accountMode === 'register') {
+                const result = await auth.createUserWithEmailAndPassword(alias, password);
+                await result.user.updateProfile({displayName:name});
+                document.getElementById('signedInName').textContent = name;
+                await writePresence();
+            } else await auth.signInWithEmailAndPassword(alias, password);
+            document.getElementById('accountPassword').value = '';
+        } catch(error) { showAuthMessage(accountError(error)); }
+        finally { setAccountBusy(false); }
+    };
+    document.getElementById('googleSignin').onclick = async () => {
+        if(accountBusy) return;
+        setAccountBusy(true); showAuthMessage('');
+        try {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            provider.setCustomParameters({prompt:'select_account'});
+            await auth.signInWithPopup(provider);
+            document.getElementById('accountPassword').value = '';
+        } catch(error) { showAuthMessage(accountError(error)); }
+        finally { setAccountBusy(false); }
+    };
+    document.getElementById('signOutButton').onclick = async () => {
+        const button = document.getElementById('signOutButton'); button.disabled = true;
+        // Do not wait indefinitely on an offline presence deletion before signing out.
+        stopPresence();
+        try { await auth.signOut(); }
+        catch(error) { startPresence(auth.currentUser); document.getElementById('presenceStatus').textContent = 'Sign-out failed. Please try again.'; }
+        finally { button.disabled = false; }
+    };
+    document.getElementById('presenceToggle').onclick = () => {
+        const panel = document.getElementById('activePanel'); panel.hidden = !panel.hidden;
+        document.getElementById('presenceToggle').setAttribute('aria-expanded', String(!panel.hidden));
+    };
+    const closeMembers = () => {
+        document.getElementById('activePanel').hidden = true;
+        document.getElementById('presenceToggle').setAttribute('aria-expanded','false');
+    };
+    document.addEventListener('click', event => { if(!document.getElementById('presenceWrap').contains(event.target)) closeMembers(); });
+    document.addEventListener('keydown', event => { if(event.key === 'Escape') closeMembers(); });
+    document.addEventListener('visibilitychange', () => {
+        if(document.visibilityState === 'hidden') { if(presenceDoc) presenceDoc.delete().catch(() => {}); }
+        else { subscribePresence(); writePresence(); }
+    });
+    window.addEventListener('pagehide', () => { if(presenceDoc) presenceDoc.delete().catch(() => {}); });
+    window.addEventListener('pageshow', () => { if(auth.currentUser) { subscribePresence(); writePresence(); } });
+    window.addEventListener('offline', renderActiveMembers);
+    window.addEventListener('online', () => { subscribePresence(); writePresence(); });
+    auth.onAuthStateChanged(user => {
+        stopPresence(); stopLibrary(); closeMembers();
+        document.body.classList.toggle('auth-locked', !user);
+        document.getElementById('authGate').hidden = !!user;
+        document.getElementById('signedInName').textContent = user ? memberName(user) : '';
+        if(user) { startLibrary(user); startPresence(user); showAuthMessage(''); }
+        else { document.getElementById('accountPassword').value = ''; document.getElementById('accountName').focus(); }
+    }, () => showAuthMessage('Authentication could not start. Reload the page and check your Firebase setup.'));
+}
+
 
 // STATE
 let cats=[], qzs=[], qs=[], allAnsPool=[];
@@ -462,19 +812,14 @@ let options = {
 
 window.onload = () => {
     const saved = localStorage.getItem('quizOptionsPro_v3_final');
-    if(saved) options = {...options, ...JSON.parse(saved)};
+    if(saved) { try { options = {...options, ...JSON.parse(saved)}; } catch(e) { /* Ignore broken local settings. */ } }
     applyOptionsUI();
     document.body.setAttribute('data-theme', options.theme);
 
-    db.collection('categories').orderBy('createdAt').onSnapshot(s => { cats = s.docs.map(d=>({id:d.id, ...d.data()})); renderTree(); });
-    db.collection('quizzes').orderBy('createdAt').onSnapshot(s => { qzs = s.docs.map(d=>({id:d.id, ...d.data()})); renderTree(); });
-    db.collection('questions').orderBy('createdAt').onSnapshot(s => {
-        qs = s.docs.map(d=>({id:d.id, ...d.data()}));
-        allAnsPool = qs.map(q => q.answer).filter(a => a && a.length < 50);
-        renderTree();
-    });
+    initializeAccounts();
 
     document.addEventListener('keydown', e => {
+        if(!auth.currentUser || document.body.classList.contains('auth-locked')) return;
         if(e.key === 'Enter') {
             const focused = document.activeElement;
             if(focused && focused.classList.contains('multi-input')) {
@@ -1000,9 +1345,6 @@ function explainSrcLabel(mode) {
     return '🔍 Google search';
 }
 
-// Pollinations.ai — free, no signup, no API key.
-// Pass model='gemini-search' to have it run a live Google Search behind the
-// scenes and write the explanation grounded in those results ("Google 2" mode).
 async function askPollinations(prompt, model) {
     let url = 'https://text.pollinations.ai/' + encodeURIComponent(prompt);
     if(model) url += '?model=' + encodeURIComponent(model);
@@ -1011,7 +1353,6 @@ async function askPollinations(prompt, model) {
     return (await res.text()).trim();
 }
 
-// Puter.js — free but prompts for an account on first AI call
 async function askPuter(prompt) {
     if(typeof puter === 'undefined' || !puter.ai || !puter.ai.chat) {
         throw new Error('Puter.js not available');
@@ -1039,6 +1380,17 @@ function filterTree(v) {
     const s = v.toLowerCase();
     document.querySelectorAll('.qz-item').forEach(i => i.classList.toggle('hidden', !i.textContent.toLowerCase().includes(s)));
 }
+</script>
+<script>
+window.addEventListener('load', function () {
+    if (typeof firebase === 'undefined' || !firebase.apps.length || typeof firebase.auth !== 'function') {
+        var message = document.getElementById('authMessage');
+        message.textContent = 'Sign-in services could not load. Check your connection, allow Firebase scripts, and reload this page.';
+        message.hidden = false;
+        document.getElementById('authSubmit').disabled = true;
+        document.getElementById('googleSignin').disabled = true;
+    }
+});
 </script>
 </body>
 </html>
