@@ -351,7 +351,48 @@ header{justify-content:space-between;gap:14px}
 @media(max-width:900px){header .logo{font-size:11px;gap:6px}header .h-btns{gap:6px}header .h-btns>.btn{font-size:11px;padding:9px}.account-name{display:none}button.online-badge{padding:8px 10px;font-size:11px}}
 @media(max-width:600px){header{height:auto;min-height:104px;flex-wrap:wrap;padding:12px;gap:10px}header .logo{width:100%;justify-content:center}header .h-btns{width:100%;justify-content:center}.layout{padding-top:116px}.settings-mo{top:116px;max-height:calc(100dvh - 116px)}.auth-card{padding:26px}.auth-card h1{font-size:25px}.active-panel{position:fixed;top:108px;right:12px}}
 
+
+/* Rich explanations: Markdown flow, readable code, and scrollable equations. */
+.explain-body{white-space:normal;overflow-wrap:anywhere;min-width:0}
+.explain-body> :first-child{margin-top:0}
+.explain-body> :last-child{margin-bottom:0}
+.explain-body p{margin:0 0 14px}
+.explain-body strong{font-weight:800}
+.explain-body h1,.explain-body h2,.explain-body h3,.explain-body h4,.explain-body h5,.explain-body h6{line-height:1.4;margin:18px 0 10px;font-size:1.1em}
+.explain-body ul,.explain-body ol{padding-left:25px;margin:12px 0}
+.explain-body li{padding-left:3px;margin:6px 0}
+.explain-body li p{margin-bottom:6px}
+.explain-body blockquote{border-left:3px solid var(--p);padding:8px 16px;margin:14px 0;background:var(--pg);border-radius:0 10px 10px 0}
+.explain-body code{font-family:'JetBrains Mono',monospace;font-size:.88em;padding:2px 6px;background:var(--s3);border-radius:5px}
+.explain-body pre{white-space:pre;overflow:auto;padding:16px;background:var(--s3);border:1px solid var(--bd);border-radius:12px;margin:14px 0}
+.explain-body pre code{padding:0;background:transparent}
+.explain-body a{color:var(--p);text-decoration:underline;text-underline-offset:3px}
+.explain-body table{display:block;max-width:100%;overflow-x:auto;border-collapse:collapse;margin:14px 0;font-size:.9em}
+.explain-body th,.explain-body td{padding:9px 12px;border:1px solid var(--bd);text-align:left}
+.explain-body th{background:var(--s3)}
+.explain-body hr{border:0;border-top:1px solid var(--bd);margin:18px 0}
+.explain-body .katex{font-size:1.1em}
+.explain-body .katex-display{max-width:100%;overflow-x:auto;overflow-y:hidden;padding:8px 2px;margin:14px 0}
+.explain-body.loading{white-space:normal}
+
+
+/* Keep formatted formulas readable in quiz choices and answer feedback. */
+.quiz-rich{overflow-wrap:anywhere;min-width:0}
+.quiz-rich p{margin:0 0 .65em}
+.quiz-rich> :last-child{margin-bottom:0}
+.quiz-rich ul,.quiz-rich ol{padding-left:1.5em}
+.quiz-rich .katex{font-size:1.1em;font-weight:normal}
+.quiz-rich .katex-display{max-width:100%;overflow-x:auto;overflow-y:hidden;padding:5px 0;margin:.5em 0}
+.quiz-rich pre{overflow-x:auto;white-space:pre}
+.mc-btn.quiz-rich{min-height:76px;overflow-x:auto}
+.mc-btn.quiz-rich p{margin:0}
+
 </style>
+<!-- Markdown, sanitized HTML, and mathematical typesetting -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.19.1/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/marked@18.1.2/lib/marked.umd.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/dompurify@3.4.17/dist/purify.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.19.1/dist/katex.min.js"></script>
 </head>
 <body data-theme="dark" class="auth-locked">
 <section id="authGate" class="auth-shell" aria-labelledby="authTitle">
@@ -963,15 +1004,18 @@ function renderQuestion() {
     if(q.imageUrl) { img.src = q.imageUrl; img.style.display = 'block'; } else img.style.display = 'none';
 
     const qTxt = document.getElementById('qTxt');
-    qTxt.textContent = (q.question || '').replace(/＿＿＿＿＿/g, '______');
-    qTxt.className = options.boldQ ? 'q-txt bold' : 'q-txt';
+    renderQuizContent(qTxt, (q.question || '').replace(/＿＿＿＿＿/g, '______'));
+    qTxt.className = options.boldQ ? 'q-txt bold quiz-rich' : 'q-txt quiz-rich';
     qTxt.classList.toggle('hidden', !q.question);
 
     const area = document.getElementById('ansArea'); area.innerHTML = '';
 
     if(options.reviewMode) {
         const correct = getCorrectAnswerDisplay(q);
-        area.innerHTML = `<div style="padding:24px;background:var(--grad);border-radius:18px;color:white;text-align:center;font-weight:800;font-size:24px">${correct}</div>`;
+        const answerCard = document.createElement('div');
+        answerCard.style.cssText = 'padding:24px;background:var(--grad);border-radius:18px;color:white;text-align:center;font-weight:800;font-size:24px';
+        renderQuizContent(answerCard, correct);
+        area.appendChild(answerCard);
         isAnswered = true;
         document.getElementById('btnMain').textContent = "Next (Enter)";
         document.getElementById('btnExplain').classList.add('show');
@@ -1017,7 +1061,10 @@ function renderMC(q, area) {
         choices = [correctAnswer, ...distractors].sort(() => Math.random() - 0.5);
     }
     choices.forEach(c => {
-        const b = document.createElement('button'); b.className = 'mc-btn'; b.textContent = c;
+        const b = document.createElement('button'); b.className = 'mc-btn'; b.type = 'button';
+        // Grading uses the original choice, never the rendered KaTeX/MathML text.
+        b.dataset.choiceValue = String(c);
+        renderQuizContent(b, c);
         b.onclick = () => checkMC(c, b); grid.appendChild(b);
     });
     area.appendChild(grid);
@@ -1147,7 +1194,7 @@ function checkMC(val, btn) {
     
     document.querySelectorAll('.mc-btn').forEach(b => {
         b.disabled = true;
-        if(b.textContent === correctStr || (q.choices && q.correctChoiceIndices && b.textContent === q.choices[q.correctChoiceIndices[0]])) {
+        if(b.dataset.choiceValue === correctStr || (q.choices && q.correctChoiceIndices && b.dataset.choiceValue === q.choices[q.correctChoiceIndices[0]])) {
             b.classList.add('correct');
         }
     });
@@ -1160,11 +1207,11 @@ function handleResult(isCorrect, correctStr) {
     const f = document.getElementById('feedback'); f.style.display = 'block';
 
     if(isCorrect) {
-        f.className = 'feedback ok'; f.textContent = `✨ Correct! ${correctStr}`;
+        f.className = 'feedback ok'; renderQuizContent(f, `✨ Correct! ${correctStr}`);
         if(!answeredIndices.has(currentIndex)) { score++; answeredIndices.add(currentIndex); }
         if(options.autoNext || options.fastSkip) { setTimeout(goNext, options.fastSkip ? 0 : 800); return; }
     } else {
-        f.className = 'feedback er'; f.textContent = `❌ Wrong. Answer: ${correctStr}`;
+        f.className = 'feedback er'; renderQuizContent(f, `❌ Wrong. Answer: ${correctStr}`);
         wrongLog.push({ q: currentQuestions[currentIndex].question || "[Image Question]", a: correctStr });
         if(options.resetOnWrong) { setTimeout(() => { alert("Hardcore Mode: Restarting Quiz!"); restartQuiz(); }, 1000); return; }
     }
@@ -1204,7 +1251,11 @@ function showFinalResults() {
         document.getElementById('wrongListContainer').style.display = 'block';
         wrongLog.forEach(item => {
             const div = document.createElement('div'); div.className = 'wrong-item';
-            div.innerHTML = `<div class="wrong-q">${item.q}</div><div class="wrong-a">Correct Answer: ${item.a}</div>`;
+            const question = document.createElement('div'); question.className = 'wrong-q';
+            const answer = document.createElement('div'); answer.className = 'wrong-a';
+            renderQuizContent(question, item.q);
+            renderQuizContent(answer, `Correct Answer: ${item.a}`);
+            div.append(question, answer);
             wl.appendChild(div);
         });
     } else {
@@ -1261,6 +1312,98 @@ function setExplainMode(v) {
 }
 
 /* ===== EXPLAIN FEATURE ===== */
+// Render AI text through a Markdown parser and sanitizer, then typeset math.
+function createExplanationParser(mathItems) {
+    const parser = new marked.Marked({gfm:true, breaks:true});
+    parser.use({extensions:[{
+        name:'explanationMath', level:'inline',
+        start(src) { const i = src.search(/\$|\\[([]/); return i < 0 ? undefined : i; },
+        tokenizer(src) {
+            const patterns = [
+                {re:/^\$\$([\s\S]+?)\$\$/, display:true},
+                {re:/^\\\[([\s\S]+?)\\\]/, display:true},
+                {re:/^\\\(([\s\S]+?)\\\)/, display:false},
+                // Spaces immediately inside dollar signs usually indicate currency.
+                {re:/^\$(?!\s|\$)((?:\\[^\n]|[^$\n\\])+?[^\s$\\]|[^\s$\\])\$(?!\d)/, display:false}
+            ];
+            for(const pattern of patterns) {
+                const match = pattern.re.exec(src);
+                if(match) {
+                    const index = mathItems.push({tex:match[1], display:pattern.display}) - 1;
+                    return {type:'explanationMath',raw:match[0],index};
+                }
+            }
+        },
+        renderer(token) { return `<span data-explain-math="${token.index}"></span>`; }
+    },{
+        // Some providers unnecessarily escape emphasis markers. Recover paired
+        // escaped bold/italic without altering literal examples in code spans.
+        name:'escapedExplanationEmphasis', level:'inline',
+        start(src) { const i = src.indexOf('\\*'); return i < 0 ? undefined : i; },
+        tokenizer(src) {
+            const match = /^(\\\*){3}([\s\S]+?)(\\\*){3}/.exec(src);
+            if(match) return {type:'escapedExplanationEmphasis',raw:match[0],strong:true,em:true,tokens:this.lexer.inlineTokens(match[2])};
+            const bold = /^(\\\*){2}([\s\S]+?)(\\\*){2}/.exec(src);
+            if(bold) return {type:'escapedExplanationEmphasis',raw:bold[0],strong:true,tokens:this.lexer.inlineTokens(bold[2])};
+            const italic = /^\\\*([^\n]+?)\\\*/.exec(src);
+            if(italic) return {type:'escapedExplanationEmphasis',raw:italic[0],em:true,tokens:this.lexer.inlineTokens(italic[1])};
+        },
+        renderer(token) {
+            let result = this.parser.parseInline(token.tokens);
+            if(token.em) result = `<em>${result}</em>`;
+            if(token.strong) result = `<strong>${result}</strong>`;
+            return result;
+        }
+    }]});
+    return parser;
+}
+
+function renderExplanation(element, text) {
+    element.className = 'explain-body';
+    renderFormattedContent(element, text);
+}
+
+function renderQuizContent(element, text) {
+    renderFormattedContent(element, text);
+    element.classList.add('quiz-rich');
+}
+
+function renderFormattedContent(element, text) {
+    const source = String(text || '');
+    // A blocked CDN must never turn an AI response into unsanitized HTML.
+    if(typeof marked === 'undefined' || typeof DOMPurify === 'undefined') {
+        element.textContent = source;
+        return;
+    }
+    try {
+        const mathItems = [];
+        const parser = createExplanationParser(mathItems);
+        element.innerHTML = DOMPurify.sanitize(parser.parse(source), {
+            ALLOWED_TAGS:['p','br','strong','em','del','h1','h2','h3','h4','h5','h6','ul','ol','li','blockquote','pre','code','table','thead','tbody','tr','th','td','a','hr','span'],
+            ALLOWED_ATTR:['href','title','start','align','data-explain-math'],
+            ALLOW_DATA_ATTR:false
+        });
+        element.querySelectorAll('a').forEach(link => {
+            const href = link.getAttribute('href') || '';
+            if(!/^(https?:\/\/|mailto:|#)/i.test(href)) link.removeAttribute('href');
+            link.setAttribute('target','_blank'); link.setAttribute('rel','noopener noreferrer');
+        });
+        element.querySelectorAll('[data-explain-math]').forEach(slot => {
+            const item = mathItems[Number(slot.getAttribute('data-explain-math'))];
+            slot.removeAttribute('data-explain-math');
+            if(!item) { slot.remove(); return; }
+            if(typeof katex === 'undefined') {
+                slot.textContent = (item.display ? '\\[' : '\\(') + item.tex + (item.display ? '\\]' : '\\)');
+                return;
+            }
+            katex.render(item.tex, slot, {displayMode:item.display, throwOnError:false,
+                trust:false, strict:'ignore', maxExpand:1000, maxSize:20});
+        });
+    } catch(error) {
+        element.textContent = source;
+    }
+}
+
 function explainCacheKey(q) {
     const idPart = q.id || (currentQuiz ? currentQuiz.id : 'na') + '_' + currentIndex;
     return 'quizExplainCache_' + idPart;
@@ -1287,8 +1430,7 @@ async function explainQuestion() {
 
     const cached = getCachedExplanation(q);
     if(cached) {
-        body.className = 'explain-body';
-        body.textContent = cached.text;
+        renderExplanation(body, cached.text);
         src.textContent = explainSrcLabel(cached.mode) + ' · cached on this device';
         src.classList.remove('hidden');
         return;
@@ -1313,7 +1455,7 @@ async function explainQuestion() {
     src.classList.add('hidden');
 
     const choicesLine = (q.choices && q.choices.length) ? `\nChoices: ${q.choices.join(', ')}` : '';
-    const prompt = `You are a helpful tutor. Briefly explain why the correct answer to this quiz question is right. Be concise (3-5 sentences max), clear, and educational. Do not just restate the answer — explain the reasoning.\n\nQuestion: ${questionText}${choicesLine}\nCorrect answer: ${correctStr}`;
+    const prompt = `You are a helpful tutor. Briefly explain why the correct answer to this quiz question is right. Be concise (3-5 sentences max), clear, and educational. Do not just restate the answer — explain the reasoning. Use Markdown for formatting (for example **bold**), without escaping its formatting markers. Write inline math inside \\( ... \\) and display math inside \\[ ... \\].\n\nQuestion: ${questionText}${choicesLine}\nCorrect answer: ${correctStr}`;
 
     try {
         let text = '';
@@ -1326,8 +1468,7 @@ async function explainQuestion() {
         }
 
         text = (text || '').trim() || "No explanation was returned. Try again or switch modes in Settings.";
-        body.className = 'explain-body';
-        body.textContent = text;
+        renderExplanation(body, text);
         src.textContent = explainSrcLabel(mode) + ' · cached on this device';
         src.classList.remove('hidden');
         setCachedExplanation(q, { text, mode });
@@ -1361,7 +1502,7 @@ async function askPuter(prompt) {
     if(typeof response === 'string') return response;
     if(response?.message?.content) {
         return Array.isArray(response.message.content)
-            ? response.message.content.map(c => c.text || '').join(' ')
+            ? response.message.content.map(c => typeof c === 'string' ? c : c.text || '').join('\n')
             : response.message.content;
     }
     if(response?.text) return response.text;
